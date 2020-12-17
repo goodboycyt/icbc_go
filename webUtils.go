@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -61,9 +62,7 @@ func DoGet(serviceUrl string,params map[string]interface{},charset string, resSt
 			},
 			ResponseHeaderTimeout: time.Second * 30,
 		},
-
 	}
-
 	req, err := http.NewRequest(http.MethodGet, serviceUrl, nil)
 	if err != nil {
 		return err
@@ -71,7 +70,6 @@ func DoGet(serviceUrl string,params map[string]interface{},charset string, resSt
 	// 添加请求头
 	req.Header.Add("content-type", "application/x-www-form-urlencoded;charset="+charset)
 	req.Header.Add("APIGW-VERSION", "bg-go-v1")
-
 	//加入get参数
 	//values := url.Values{}
 	q := req.URL.Query()
@@ -88,7 +86,6 @@ func DoGet(serviceUrl string,params map[string]interface{},charset string, resSt
 		case float32:
 			q.Add(k, strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64))
 		}
-
 	}
 
 	req.URL.RawQuery = q.Encode()
@@ -124,7 +121,7 @@ func DoPost(serviceUrl string,params map[string]interface{},charset string, resS
 	client := &http.Client{
 		Transport: &http.Transport{
 			Dial: func(netw, addr string) (net.Conn, error) {
-				conn, err := net.DialTimeout(netw, addr, time.Second*2)    //设置建立连接超时
+				conn, err := net.DialTimeout(netw, addr, time.Second*1)    //设置建立连接超时
 				if err != nil {
 					return nil, err
 				}
@@ -136,7 +133,6 @@ func DoPost(serviceUrl string,params map[string]interface{},charset string, resS
 
 	}
 	q := url.Values{}
-	//q := req.URL.Query()
 	for k, v := range params {
 		switch v.(type) {
 		case string:
@@ -150,7 +146,6 @@ func DoPost(serviceUrl string,params map[string]interface{},charset string, resS
 		case float32:
 			q.Add(k, strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64))
 		}
-
 	}
 	req, err := http.NewRequest(http.MethodPost, serviceUrl, strings.NewReader(q.Encode()))
 	if err != nil {
@@ -182,4 +177,60 @@ func DoPost(serviceUrl string,params map[string]interface{},charset string, resS
 	}
 	*resStr = result.String()
 	return nil
+}
+
+/*
+build get url
+ */
+func BuildGetUrl(serviceUrl string, urlQueryParams map[string]interface{}, charset string) string {
+	q := url.Values{}
+	for k, v := range urlQueryParams {
+		switch v.(type) {
+		case string:
+			q.Add(k, v.(string))
+		case int:
+			q.Add(k, strconv.FormatInt(int64(v.(int)), 10))
+		case int64:
+			q.Add(k, strconv.FormatInt(v.(int64), 10))
+		case float64:
+			q.Add(k, strconv.FormatFloat(v.(float64), 'f', -1, 64))
+		case float32:
+			q.Add(k, strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64))
+		}
+	}
+	return serviceUrl+"?"+q.Encode()
+}
+
+/**
+build form
+ */
+func BuildForm(url string, bodyParams map[string]interface{}) string {
+	result :=""
+	if bodyParams == nil || len(bodyParams) == 0 {
+	} else {
+		re3, _ := regexp.Compile("\"")
+		fmt.Println(bodyParams)
+		for k,v := range bodyParams {
+			if v == "" || v==nil {
+
+			} else {
+				switch v.(type) {
+				case string:
+					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+re3.ReplaceAllString(v.(string), "&quot;")+"\">\n"
+					fmt.Println("result",result)
+				case int:
+					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatInt(int64(v.(int)), 10)+"\">\n"
+				case int64:
+					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatInt(v.(int64), 10)+"\">\n"
+				case float64:
+					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatFloat(v.(float64), 'f', -1, 64)+"\">\n"
+				case float32:
+					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64)+"\">\n"
+				default:
+					//result += "<input type=\"hidden\" name=\""+k+"\" value=\""+v.(string)+"\">\n"
+				}
+			}
+			}
+		}
+	return "<form name=\"auto_submit_form\" method=\"post\" action=\""+url+"\">\n"+result+"<input type=\"submit\" value=\"立刻提交\" style=\"display:none\" >\n</form>\n<script>document.forms[0].submit();</script>"
 }

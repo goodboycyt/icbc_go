@@ -11,19 +11,19 @@ import (
 	"strings"
 )
 
-func RsaSign(signContent string, privateKey string, hash crypto.Hash) string {
+func RsaSign(signContent string, privateKey string, hash crypto.Hash) (string,error) {
 	shaNew := hash.New()
 	shaNew.Write([]byte(signContent))
 	hashed := shaNew.Sum(nil)
 	priKey, err := ParsePrivateKey(privateKey)
 	if err != nil {
-		panic(err)
+		return EMPTY,err
 	}
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priKey, hash, hashed)
 	if err != nil {
 		panic(err)
 	}
-	return base64.StdEncoding.EncodeToString(signature)
+	return base64.StdEncoding.EncodeToString(signature),nil
 }
 
 func RsaVerifySign(signContent string, publicKey string, hash crypto.Hash, sign string) error {
@@ -40,7 +40,7 @@ func RsaVerifySign(signContent string, publicKey string, hash crypto.Hash, sign 
 	}
 	signature := rsa.VerifyPKCS1v15( pubKey, hash, hashed, sign1)
 	if signature != nil {
-		panic(signature)
+		return signature
 	}
 	return nil
 }
