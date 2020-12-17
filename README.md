@@ -14,4 +14,12 @@ or
 	request_b["biz_content"] = map[string]interface{}{"corp_no":"123213","trx_acc_date":"2020-12-14"}
 	a,b :=icbc.execute(request_b, "202012241521929252" , "")
 	fmt.Println(a,b)
+
+
+    var icbc IcbcClientUi
+    icbc.New("11", "=","RSA","UTF-8","json","MIB","","")
+    request_b := map[string]interface{}{"serviceUrl":"https://1.1.com.cn/ui/1/ui/1/1/1/V1","method":"POST","isNeedEncrypt":false,"extraParams":""}
+    request_b["biz_content"] = map[string]interface{}{"121":"12121"}
+    a,b :=icbc.BuildPostForm(request_b, "202012241521929252" , "")
+    fmt.Println(a,b)
 ```
