@@ -1,4 +1,4 @@
-module github.com/goodboycyt/icbc_client_go
+module github.com/goodboycyt/icbc_go
 
 require (
 	//github.com/json-iterator/go v1.1.10

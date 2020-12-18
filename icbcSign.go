@@ -1,4 +1,4 @@
-package main
+package icbc_go
 
 import (
 	"crypto"

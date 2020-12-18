@@ -1,7 +1,7 @@
 /**
 工行ui请求
  */
-package main
+package icbc_go
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package main
+package icbc_go
 
 const (
 	SIGN_TYPE = "sign_type"
