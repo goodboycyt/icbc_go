@@ -1,7 +1,7 @@
 ## icbc go lib
 
 ### use mod config
-`require github.com/goodboycyt/icbc_client_go v1.0`
+`require github.com/goodboycyt/icbc_go v1.4.2`
 or
 `go get -u github.com/goodboycyt/icbc_client_go`
 
