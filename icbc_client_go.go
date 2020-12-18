@@ -86,7 +86,7 @@ func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId stri
 /**
 请求执行程序
  */
-func (icbc *IcbcClient) execute(request map[string]interface{}, msgId string, auToken string) (string,error){
+func (icbc *IcbcClient) Execute(request map[string]interface{}, msgId string, auToken string) (string,error){
 	params, perr := icbc.prepareParams(request, msgId ,auToken)
 	if perr!=nil {
 		return "",perr
