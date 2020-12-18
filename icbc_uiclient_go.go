@@ -67,14 +67,12 @@ build url
 func (icbc *IcbcClientUi) BuildPostForm(request map[string]interface{}, msgId string, appAuthToken string) (string,error) {
 	params, perr := icbc.prepareParams(request, msgId ,appAuthToken)
 	if perr!=nil {
-		return EMPTY,nil
+		return "",nil
 	}
 	urlQueryParams := map[string]interface{}{}
 	urlBodyParams :=  map[string]interface{}{}
 	icbc.buildUrlQueryParams(params, &urlQueryParams, &urlBodyParams)
 	url := BuildGetUrl(request["serviceUrl"].(string),urlQueryParams,icbc.charset)
-
-
 	return BuildForm(url,urlBodyParams),nil
 }
 /**
@@ -84,14 +82,13 @@ func (icbc *IcbcClientUi) prepareParams(request map[string]interface{}, msgId st
 	//params to return
 	params := map[string]interface{}{}
 	//biz to json string
-	//var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	bf := bytes.NewBuffer([]byte{})
 	jsonEncoder := json.NewEncoder(bf)
 	jsonEncoder.SetEscapeHTML(false)
 	jsonEncoder.Encode(request["biz_content"])
 
-	bizContentStr := bf.String()
-	bizContentStr = strings.Replace(bizContentStr, "/", "\\/", -1)
+	//bizContentStr := bf.String()
+	bizContentStr := strings.Replace(bf.String(), "/", "\\/", -1)
 	bizContentStr = strings.TrimRight(bizContentStr, "\n")
 	//prepare public params
 	params[APP_ID] = icbc.appid
@@ -101,18 +98,19 @@ func (icbc *IcbcClientUi) prepareParams(request map[string]interface{}, msgId st
 	params[MSG_ID] = msgId
 	params[TIMESTAMP] = time.Now().Format("2006-01-02 15:04:05")
 	params[BIZ_CONTENT_KEY] = bizContentStr
-
 	//get path
 	path, gerr := url.Parse(request["serviceUrl"].(string))
 	if gerr != nil {
 		return params,gerr
 	}
 	//build sign string
+
 	var signStr string
 	BuildOrderedSignStr(path.Path, params , &signStr)
-	//
 	var signStrHad string
+
 	sErr := Sign(signStr, icbc.signType, icbc.privateKey, icbc.charset , &signStrHad)
+
 	if sErr!=nil {
 		return nil,sErr
 	}

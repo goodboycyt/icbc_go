@@ -4,11 +4,13 @@
 package main
 
 import (
+	"bytes"
 	"crypto"
 	"encoding/json"
 	"errors"
 	"github.com/tidwall/gjson"
 	"net/url"
+	"strings"
 	"time"
 )
 type IcbcClient struct {
@@ -46,10 +48,14 @@ func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId stri
 	//params to return
 	params := map[string]interface{}{}
 	//biz to json string
-	bizContentStr, jmErr := json.Marshal(request["biz_content"])
-	if jmErr!= nil {
-		return params,jmErr
-	}
+	bf := bytes.NewBuffer([]byte{})
+	jsonEncoder := json.NewEncoder(bf)
+	jsonEncoder.SetEscapeHTML(false)
+	jsonEncoder.Encode(request["biz_content"])
+
+	//bizContentStr := bf.String()
+	bizContentStr := strings.Replace(bf.String(), "/", "\\/", -1)
+	bizContentStr = strings.TrimRight(bizContentStr, "\n")
 	//prepare public params
 	params[APP_ID] = icbc.appid
 	params[SIGN_TYPE] = icbc.signType
@@ -57,7 +63,7 @@ func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId stri
 	params[FORMAT] = icbc.format
 	params[MSG_ID] = msgId
 	params[TIMESTAMP] = time.Now().Format("2006-01-02 15:04:05")
-	params[BIZ_CONTENT_KEY] = string(bizContentStr)
+	params[BIZ_CONTENT_KEY] = bizContentStr
 
 	//get path
 	path, gerr := url.Parse(request["serviceUrl"].(string))
@@ -91,30 +97,27 @@ func (icbc *IcbcClient) execute(request map[string]interface{}, msgId string, au
 	if request["method"] == "GET" {
 		error := DoGet(request["serviceUrl"].(string),params,icbc.charset , &respStr)
 		if error != nil {
-			return EMPTY, error
+			return "", error
 		}
 	} else if request["method"] == "POST" {
 		error := DoPost(request["serviceUrl"].(string),params,icbc.charset, &respStr)
 		if error != nil {
-			return EMPTY, error
+			return "", error
 		}
 	}else{
-		return EMPTY,errors.New("Only support GET or POST http method!")
+		return "",errors.New("Only support GET or POST http method!")
 	}
 	//解析json
 	var jsonRes = gjson.GetMany(respStr, "response_biz_content","sign")
-	var b error
+	//var b error
+	b := error(nil)
 	if SIGN_TYPE_RSA == icbc.signType {
 		b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA1, jsonRes[1].String())
 	}else if SIGN_TYPE_RSA2 == icbc.signType {
 		b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA256, jsonRes[1].String())
 	}else{
-		return EMPTY,errors.New("Only support RSA signature!in respose")
+		b = errors.New("Only support RSA signature!in respose")
 	}
-	//b :=RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA1, jsonRes[1].String())
-	if b!=nil {
-		return respStr,b
-	}
-	return respStr,nil
+	return respStr,b
 }
 

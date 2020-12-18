@@ -70,6 +70,7 @@ func DoGet(serviceUrl string,params map[string]interface{},charset string, resSt
 	// 添加请求头
 	req.Header.Add("content-type", "application/x-www-form-urlencoded;charset="+charset)
 	req.Header.Add("APIGW-VERSION", "bg-go-v1")
+
 	//加入get参数
 	//values := url.Values{}
 	q := req.URL.Query()
@@ -86,6 +87,7 @@ func DoGet(serviceUrl string,params map[string]interface{},charset string, resSt
 		case float32:
 			q.Add(k, strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64))
 		}
+
 	}
 
 	req.URL.RawQuery = q.Encode()
@@ -214,21 +216,22 @@ func BuildForm(url string, bodyParams map[string]interface{}) string {
 			if v == "" || v==nil {
 
 			} else {
+				var tmp string
 				switch v.(type) {
 				case string:
-					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+re3.ReplaceAllString(v.(string), "&quot;")+"\">\n"
-					fmt.Println("result",result)
+					tmp = re3.ReplaceAllString(v.(string), "&quot;")
 				case int:
-					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatInt(int64(v.(int)), 10)+"\">\n"
+					tmp = strconv.FormatInt(int64(v.(int)), 10)
 				case int64:
-					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatInt(v.(int64), 10)+"\">\n"
+					tmp = strconv.FormatInt(v.(int64), 10)
 				case float64:
-					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatFloat(v.(float64), 'f', -1, 64)+"\">\n"
+					tmp = strconv.FormatFloat(v.(float64), 'f', -1, 64)
 				case float32:
-					result += "<input type=\"hidden\" name=\""+k+"\" value=\""+strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64)+"\">\n"
+					tmp = strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64)
 				default:
 					//result += "<input type=\"hidden\" name=\""+k+"\" value=\""+v.(string)+"\">\n"
 				}
+				result += "<input type=\"hidden\" name=\""+k+"\" value=\""+tmp+"\">\n"
 			}
 			}
 		}

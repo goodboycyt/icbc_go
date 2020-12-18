@@ -17,7 +17,7 @@ func RsaSign(signContent string, privateKey string, hash crypto.Hash) (string,er
 	hashed := shaNew.Sum(nil)
 	priKey, err := ParsePrivateKey(privateKey)
 	if err != nil {
-		return EMPTY,err
+		return "",err
 	}
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priKey, hash, hashed)
 	if err != nil {
