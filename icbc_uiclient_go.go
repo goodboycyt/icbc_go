@@ -78,14 +78,14 @@ func (icbc *IcbcClientUi) BuildPostForm(request map[string]interface{}, msgId st
 /**
 请求参数预处理
 */
-func (icbc *IcbcClientUi) prepareParams(request map[string]interface{}, msgId string, appAuthToken string) (map[string]interface{},error){
+func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId string, appAuthToken string) (map[string]interface{},error){
 	//params to return
 	params := map[string]interface{}{}
 	//biz to json string
 	bf := bytes.NewBuffer([]byte{})
 	jsonEncoder := json.NewEncoder(bf)
 	jsonEncoder.SetEscapeHTML(false)
-	jsonEncoder.Encode(request["biz_content"])
+	jsonEncoder.Encode((*request)["biz_content"])
 
 	//bizContentStr := bf.String()
 	bizContentStr := strings.Replace(bf.String(), "/", "\\/", -1)
@@ -99,7 +99,7 @@ func (icbc *IcbcClientUi) prepareParams(request map[string]interface{}, msgId st
 	params[TIMESTAMP] = time.Now().Format("2006-01-02 15:04:05")
 	params[BIZ_CONTENT_KEY] = bizContentStr
 	//get path
-	path, gerr := url.Parse(request["serviceUrl"].(string))
+	path, gerr := url.Parse((*request)["serviceUrl"].(string))
 	if gerr != nil {
 		return params,gerr
 	}

@@ -1,8 +1,6 @@
 module github.com/goodboycyt/icbc_go
 
-require (
-	//github.com/json-iterator/go v1.1.10
-	github.com/tidwall/gjson v1.6.4
-)
+//github.com/json-iterator/go v1.1.10
+require github.com/tidwall/gjson v1.6.4
 
 go 1.15

@@ -86,21 +86,21 @@ func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId stri
 /**
 请求执行程序
  */
-func (icbc *IcbcClient) Execute(request map[string]interface{}, msgId string, auToken string) (string,error){
-	params, perr := icbc.prepareParams(request, msgId ,auToken)
+func (icbc *IcbcClient) Execute(request *map[string]interface{}, msgId string, auToken string) (string,error){
+	params, perr := icbc.prepareParams(*request, msgId ,auToken)
 	if perr!=nil {
 		return "",perr
 	}
 	//发送请求
 	//接收响应
 	var respStr string
-	if request["method"] == "GET" {
-		error := DoGet(request["serviceUrl"].(string),params,icbc.charset , &respStr)
+	if (*request)["method"] == "GET" {
+		error := DoGet((*request)["serviceUrl"].(string),params,icbc.charset , &respStr)
 		if error != nil {
 			return "", error
 		}
-	} else if request["method"] == "POST" {
-		error := DoPost(request["serviceUrl"].(string),params,icbc.charset, &respStr)
+	} else if (*request)["method"] == "POST" {
+		error := DoPost((*request)["serviceUrl"].(string),params,icbc.charset, &respStr)
 		if error != nil {
 			return "", error
 		}
