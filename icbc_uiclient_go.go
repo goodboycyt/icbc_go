@@ -64,7 +64,7 @@ func (icbc *IcbcClientUi) buildUrlQueryParams(params map[string]interface{} , ur
 /**
 build url
  */
-func (icbc *IcbcClientUi) BuildPostForm(request map[string]interface{}, msgId string, appAuthToken string) (string,error) {
+func (icbc *IcbcClientUi) BuildPostForm(request *map[string]interface{}, msgId string, appAuthToken string) (string,error) {
 	params, perr := icbc.prepareParams(request, msgId ,appAuthToken)
 	if perr!=nil {
 		return "",nil
@@ -72,8 +72,8 @@ func (icbc *IcbcClientUi) BuildPostForm(request map[string]interface{}, msgId st
 	urlQueryParams := map[string]interface{}{}
 	urlBodyParams :=  map[string]interface{}{}
 	icbc.buildUrlQueryParams(params, &urlQueryParams, &urlBodyParams)
-	url := BuildGetUrl(request["serviceUrl"].(string),urlQueryParams,icbc.charset)
-	return BuildForm(url,urlBodyParams),nil
+	urlb := BuildGetUrl((*request)["serviceUrl"].(string),urlQueryParams,icbc.charset)
+	return BuildForm(urlb,urlBodyParams),nil
 }
 /**
 请求参数预处理
@@ -85,7 +85,10 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 	bf := bytes.NewBuffer([]byte{})
 	jsonEncoder := json.NewEncoder(bf)
 	jsonEncoder.SetEscapeHTML(false)
-	jsonEncoder.Encode((*request)["biz_content"])
+	eerr :=jsonEncoder.Encode((*request)["biz_content"])
+	if eerr!=nil {
+		return nil, nil
+	}
 
 	//bizContentStr := bf.String()
 	bizContentStr := strings.Replace(bf.String(), "/", "\\/", -1)
@@ -110,7 +113,7 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 	var signStrHad string
 
 	sErr := Sign(signStr, icbc.signType, icbc.privateKey, icbc.charset , &signStrHad)
-
+	//hello
 	if sErr!=nil {
 		return nil,sErr
 	}
