@@ -143,6 +143,27 @@ func (icbc *IcbcClient) Execute(request *map[string]interface{}, msgId string, a
 	}else{
 		b = errors.New("Only support RSA signature!in respose")
 	}
+	if (*request)["isNeedEncrypt"].(bool) == true {
+		if icbc.encryptType != "AES" {
+			return respStr,errors.New("only support aes;reponse")
+		}
+		//params[ENCRYPT_TYPE] = icbc.encryptType
+		//var aeserr error
+		aesKey, aeErr := base64.StdEncoding.DecodeString(icbc.encryptKey)
+		if aeErr != nil {
+			return respStr,aeErr
+		}
+		bzByte, bzErr := base64.StdEncoding.DecodeString(jsonRes[0].String())
+		if bzErr != nil {
+			return respStr,bzErr
+		}
+		tmp, aeserr := AesDecrypt(bzByte, aesKey)
+		if aeserr!=nil {
+			return respStr,aeserr
+		}
+		respStr = string(tmp)
+
+	}
 	return respStr,b
 }
 
