@@ -1,13 +1,11 @@
 package icbc_go
 
-
 import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
 	"errors"
-	"fmt"
 )
 
 //加密过程：
@@ -54,7 +52,7 @@ func AesEncrypt(data []byte, key []byte) ([]byte, error) {
 	//初始化加密数据接收切片
 	crypted := make([]byte, len(encryptBytes))
 	//使用cbc加密模式
-	fmt.Println(key[:blockSize])
+	//fmt.Println(key[:blockSize])
 	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize])
 	//执行加密
 	blockMode.CryptBlocks(crypted, encryptBytes)
