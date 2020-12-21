@@ -53,7 +53,11 @@ func AesEncrypt(data []byte, key []byte) ([]byte, error) {
 	crypted := make([]byte, len(encryptBytes))
 	//使用cbc加密模式
 	//fmt.Println(key[:blockSize])
-	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize])
+	iv := make([]byte, blockSize)
+	for i:=0;i < blockSize; i++ {
+		iv[i] = 0
+	}
+	blockMode := cipher.NewCBCEncrypter(block, iv)
 	//执行加密
 	blockMode.CryptBlocks(crypted, encryptBytes)
 	return crypted, nil
