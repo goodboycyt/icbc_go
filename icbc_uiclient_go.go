@@ -115,7 +115,11 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 		}
 		params[ENCRYPT_TYPE] = icbc.encryptType
 		//var aeserr error
-		tmp, aeserr := AesEncrypt([]byte(bizContentStr), []byte(icbc.encryptKey))
+		aesKey, aeErr := base64.StdEncoding.DecodeString(icbc.encryptKey)
+		if aeErr != nil {
+			return params,aeErr
+		}
+		tmp, aeserr := AesEncrypt([]byte(bizContentStr), aesKey)
 		if aeserr!=nil {
 			return params,aeserr
 		}
