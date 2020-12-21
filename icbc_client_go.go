@@ -44,14 +44,17 @@ func (icbc *IcbcClient) New(appid string, privateKey string, signType string, ch
 /**
 请求参数预处理
  */
-func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId string, appAuthToken string) (map[string]interface{},error){
+func (icbc *IcbcClient) prepareParams(request *map[string]interface{}, msgId string, appAuthToken string) (map[string]interface{},error){
 	//params to return
 	params := map[string]interface{}{}
 	//biz to json string
 	bf := bytes.NewBuffer([]byte{})
 	jsonEncoder := json.NewEncoder(bf)
 	jsonEncoder.SetEscapeHTML(false)
-	jsonEncoder.Encode(request["biz_content"])
+	eerr := jsonEncoder.Encode((*request)["biz_content"])
+	if eerr!=nil {
+		return nil,eerr
+	}
 
 	//bizContentStr := bf.String()
 	bizContentStr := strings.Replace(bf.String(), "/", "\\/", -1)
@@ -66,7 +69,7 @@ func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId stri
 	params[BIZ_CONTENT_KEY] = bizContentStr
 
 	//get path
-	path, gerr := url.Parse(request["serviceUrl"].(string))
+	path, gerr := url.Parse((*request)["serviceUrl"].(string))
 	if gerr != nil {
 		return params,gerr
 	}
@@ -87,7 +90,7 @@ func (icbc *IcbcClient) prepareParams(request map[string]interface{}, msgId stri
 请求执行程序
  */
 func (icbc *IcbcClient) Execute(request *map[string]interface{}, msgId string, auToken string) (string,error){
-	params, perr := icbc.prepareParams(*request, msgId ,auToken)
+	params, perr := icbc.prepareParams(request, msgId ,auToken)
 	if perr!=nil {
 		return "",perr
 	}
