@@ -6,6 +6,7 @@ package icbc_go
 import (
 	"bytes"
 	"crypto"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"github.com/tidwall/gjson"
@@ -73,6 +74,23 @@ func (icbc *IcbcClient) prepareParams(request *map[string]interface{}, msgId str
 	if gerr != nil {
 		return params,gerr
 	}
+	//if encrypt
+	if (*request)["isNeedEncrypt"].(bool) == true && bizContentStr!=""{
+		if icbc.encryptType != "AES" {
+			return params,errors.New("only support aes")
+		}
+		params[ENCRYPT_TYPE] = icbc.encryptType
+		//var aeserr error
+		tmp, aeserr := AesEncrypt([]byte(bizContentStr), []byte(icbc.encryptKey))
+		if aeserr!=nil {
+			return params,aeserr
+		}
+		params[BIZ_CONTENT_KEY] = base64.StdEncoding.EncodeToString(tmp)
+
+	} else {
+		params[BIZ_CONTENT_KEY] = bizContentStr
+	}
+
 	//build sign string
 	var signStr string
 	BuildOrderedSignStr(path.Path, params , &signStr)

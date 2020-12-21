@@ -5,6 +5,7 @@ package icbc_go
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/url"
@@ -67,7 +68,7 @@ build url
 func (icbc *IcbcClientUi) BuildPostForm(request *map[string]interface{}, msgId string, appAuthToken string) (string,error) {
 	params, perr := icbc.prepareParams(request, msgId ,appAuthToken)
 	if perr!=nil {
-		return "",nil
+		return "",perr
 	}
 	urlQueryParams := map[string]interface{}{}
 	urlBodyParams :=  map[string]interface{}{}
@@ -113,11 +114,12 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 			return params,errors.New("only support aes")
 		}
 		params[ENCRYPT_TYPE] = icbc.encryptType
-		var aeserr error
-		params[BIZ_CONTENT_KEY], aeserr = AesEncrypt([]byte(bizContentStr), []byte(icbc.encryptKey))
+		//var aeserr error
+		tmp, aeserr := AesEncrypt([]byte(bizContentStr), []byte(icbc.encryptKey))
 		if aeserr!=nil {
 			return params,aeserr
 		}
+		params[BIZ_CONTENT_KEY] = base64.StdEncoding.EncodeToString(tmp)
 
 	} else {
 		params[BIZ_CONTENT_KEY] = bizContentStr
