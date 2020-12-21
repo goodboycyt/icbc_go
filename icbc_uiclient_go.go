@@ -100,12 +100,29 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 	params[FORMAT] = icbc.format
 	params[MSG_ID] = msgId
 	params[TIMESTAMP] = time.Now().Format("2006-01-02 15:04:05")
-	params[BIZ_CONTENT_KEY] = bizContentStr
+
 	//get path
 	path, gerr := url.Parse((*request)["serviceUrl"].(string))
 	if gerr != nil {
 		return params,gerr
 	}
+
+	//if encrypt
+	if (*request)["isNeedEncrypt"].(bool) == true && bizContentStr!=""{
+		if icbc.encryptType != "AES" {
+			return params,errors.New("only support aes")
+		}
+		params[ENCRYPT_TYPE] = icbc.encryptType
+		var aeserr error
+		params[BIZ_CONTENT_KEY], aeserr = AesEncrypt([]byte(bizContentStr), []byte(icbc.encryptKey))
+		if aeserr!=nil {
+			return params,aeserr
+		}
+
+	} else {
+		params[BIZ_CONTENT_KEY] = bizContentStr
+	}
+
 	//build sign string
 
 	var signStr string
