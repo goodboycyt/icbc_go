@@ -1,10 +1,11 @@
+//icbc签名文件
 package icbc_go
 
 import (
 	"crypto"
 	"errors"
 )
-
+//签名
 func Sign(strToSign string, signType string, privateKey string, charset string , signStr *string) error {
 	err := error(nil)
 	if SIGN_TYPE_RSA == signType {

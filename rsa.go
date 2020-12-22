@@ -1,3 +1,6 @@
+/**
+rsa 处理程序
+ */
 package icbc_go
 
 import (
@@ -10,7 +13,7 @@ import (
 	"errors"
 	"strings"
 )
-
+//加签
 func RsaSign(signContent string, privateKey string, hash crypto.Hash) (string,error) {
 	shaNew := hash.New()
 	shaNew.Write([]byte(signContent))
@@ -25,7 +28,7 @@ func RsaSign(signContent string, privateKey string, hash crypto.Hash) (string,er
 	}
 	return base64.StdEncoding.EncodeToString(signature),nil
 }
-
+//验签
 func RsaVerifySign(signContent string, publicKey string, hash crypto.Hash, sign string) error {
 	sign1, err1 := base64.StdEncoding.DecodeString(sign)
 	if err1 != nil {
@@ -44,7 +47,7 @@ func RsaVerifySign(signContent string, publicKey string, hash crypto.Hash, sign 
 	}
 	return nil
 }
-
+//私钥转换
 func ParsePrivateKey(privateKey string)(*rsa.PrivateKey, error) {
 	privateKey = FormatPrivateKey(privateKey)
 	// 2、解码私钥字节，生成加密对象
@@ -60,7 +63,7 @@ func ParsePrivateKey(privateKey string)(*rsa.PrivateKey, error) {
 	}
 	return priKey.(*rsa.PrivateKey), nil
 }
-
+//私钥格式化
 func FormatPrivateKey(privateKey string) string  {
 	if !strings.HasPrefix(privateKey, PEM_BEGIN) {
 		privateKey = PEM_BEGIN + privateKey
@@ -70,7 +73,7 @@ func FormatPrivateKey(privateKey string) string  {
 	}
 	return privateKey
 }
-
+//公钥转换
 func ParsePublicKey(pulicKey string)(*rsa.PublicKey, error) {
 	pulicKey = FormatPublicKey(pulicKey)
 	// 2、解码私钥字节，生成加密对象
@@ -86,7 +89,7 @@ func ParsePublicKey(pulicKey string)(*rsa.PublicKey, error) {
 	}
 	return pubKey.(*rsa.PublicKey), nil
 }
-
+//公钥格式化
 func FormatPublicKey(pulicKey string) string  {
 	if !strings.HasPrefix(pulicKey, PPEM_BEGIN) {
 		pulicKey = PPEM_BEGIN + pulicKey

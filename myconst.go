@@ -1,3 +1,6 @@
+/*
+常量文件
+ */
 package icbc_go
 
 const (

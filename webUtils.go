@@ -1,3 +1,6 @@
+/**
+请求处理，参数处理，参数拼接
+ */
 package icbc_go
 
 import (
