@@ -119,11 +119,12 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 		if aeErr != nil {
 			return params,aeErr
 		}
-		tmp, aeserr := AesEncrypt([]byte(bizContentStr), aesKey)
+		var aeserr error
+		params[BIZ_CONTENT_KEY], aeserr = EncryptByAes([]byte(bizContentStr), aesKey)
 		if aeserr!=nil {
 			return params,aeserr
 		}
-		params[BIZ_CONTENT_KEY] = base64.StdEncoding.EncodeToString(tmp)
+		//params[BIZ_CONTENT_KEY] = base64.StdEncoding.EncodeToString(tmp)
 
 	} else {
 		params[BIZ_CONTENT_KEY] = bizContentStr
