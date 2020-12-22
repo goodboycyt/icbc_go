@@ -1,3 +1,13 @@
+/**
+aes 加解密文件
+加密过程：
+ 1、处理数据，对数据进行填充，采用PKCS7（当密钥长度不够时，缺几位补几个几）的方式。
+ 2、对数据进行加密，采用AES加密方法中CBC加密模式
+ 3、对得到的加密数据，进行base64加密，得到字符串
+解密过程相反
+16,24,32位字符串的话，分别对应AES-128，AES-192，AES-256 加密方法
+ */
+
 package icbc_go
 
 import (
@@ -7,16 +17,6 @@ import (
 	"encoding/base64"
 	"errors"
 )
-
-//加密过程：
-//  1、处理数据，对数据进行填充，采用PKCS7（当密钥长度不够时，缺几位补几个几）的方式。
-//  2、对数据进行加密，采用AES加密方法中CBC加密模式
-//  3、对得到的加密数据，进行base64加密，得到字符串
-// 解密过程相反
-
-//16,24,32位字符串的话，分别对应AES-128，AES-192，AES-256 加密方法
-//key不能泄露
-//var PwdKey = []byte("ABCDABCDABCDABCD")
 
 //pkcs7Padding 填充
 func pkcs7Padding(data []byte, blockSize int) []byte {

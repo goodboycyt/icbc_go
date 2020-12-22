@@ -1,4 +1,13 @@
 ## icbc go lib
+封装的功能包括，自动加签，验签，加密，解密
+aesutil.go:aes加解密文件
+icbc_client_go.go:api请求文件
+icbc_uiclient_go.go:ui请求文件
+icbcSign.go :签名验签文件
+myconst.go:常量文件
+rsa.go:rsa相关文件
+webUtils.go:请求相关
+
 
 ### use mod config
 `require github.com/goodboycyt/icbc_go v1.4.4`
