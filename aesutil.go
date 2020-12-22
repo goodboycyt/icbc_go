@@ -73,7 +73,11 @@ func AesDecrypt(data []byte, key []byte) ([]byte, error) {
 	//获取块的大小
 	blockSize := block.BlockSize()
 	//使用cbc
-	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
+	iv := make([]byte, blockSize)
+	for i:=0;i < blockSize; i++ {
+		iv[i] = 0
+	}
+	blockMode := cipher.NewCBCDecrypter(block, iv)
 	//初始化解密数据接收切片
 	crypted := make([]byte, len(data))
 	//执行解密
