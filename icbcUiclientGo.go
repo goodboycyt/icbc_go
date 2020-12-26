@@ -65,7 +65,7 @@ func (icbc *IcbcClientUi) buildUrlQueryParams(params map[string]interface{} , ur
 /**
 build url
  */
-func (icbc *IcbcClientUi) BuildPostForm(request *map[string]interface{}, msgId string, appAuthToken string) (string,error) {
+func (icbc *IcbcClientUi) BuildPostForm(request map[string]interface{}, msgId string, appAuthToken string) (string,error) {
 	params, perr := icbc.prepareParams(request, msgId ,appAuthToken)
 	if perr!=nil {
 		return "",perr
@@ -73,20 +73,20 @@ func (icbc *IcbcClientUi) BuildPostForm(request *map[string]interface{}, msgId s
 	urlQueryParams := map[string]interface{}{}
 	urlBodyParams :=  map[string]interface{}{}
 	icbc.buildUrlQueryParams(params, &urlQueryParams, &urlBodyParams)
-	urlb := BuildGetUrl((*request)["serviceUrl"].(string),urlQueryParams,icbc.charset)
+	urlb := BuildGetUrl(request["serviceUrl"].(string),urlQueryParams,icbc.charset)
 	return BuildForm(urlb,urlBodyParams),nil
 }
 /**
 请求参数预处理
 */
-func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId string, appAuthToken string) (map[string]interface{},error){
+func (icbc *IcbcClientUi) prepareParams(request map[string]interface{}, msgId string, appAuthToken string) (map[string]interface{},error){
 	//params to return
 	params := map[string]interface{}{}
 	//biz to json string
 	bf := bytes.NewBuffer([]byte{})
 	jsonEncoder := json.NewEncoder(bf)
 	jsonEncoder.SetEscapeHTML(false)
-	eerr :=jsonEncoder.Encode((*request)["biz_content"])
+	eerr :=jsonEncoder.Encode(request["biz_content"])
 	if eerr!=nil {
 		return nil, nil
 	}
@@ -103,13 +103,13 @@ func (icbc *IcbcClientUi) prepareParams(request *map[string]interface{}, msgId s
 	params[TIMESTAMP] = time.Now().Format("2006-01-02 15:04:05")
 
 	//get path
-	path, gerr := url.Parse((*request)["serviceUrl"].(string))
+	path, gerr := url.Parse(request["serviceUrl"].(string))
 	if gerr != nil {
 		return params,gerr
 	}
 
 	//if encrypt
-	if (*request)["isNeedEncrypt"].(bool) == true && bizContentStr!=""{
+	if request["isNeedEncrypt"].(bool) == true && bizContentStr!=""{
 		if icbc.encryptType != "AES" {
 			return params,errors.New("only support aes")
 		}
