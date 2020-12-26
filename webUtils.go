@@ -214,7 +214,7 @@ func BuildForm(url string, bodyParams map[string]interface{}) string {
 	if bodyParams == nil || len(bodyParams) == 0 {
 	} else {
 		re3, _ := regexp.Compile("\"")
-		fmt.Println(bodyParams)
+		//fmt.Println(bodyParams)
 		for k,v := range bodyParams {
 			if v == "" || v==nil {
 
