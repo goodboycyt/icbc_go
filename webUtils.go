@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -25,7 +26,12 @@ func BuildOrderedSignStr(path string, params map[string]interface{} , signStr *s
 	var key []string
 	//delete(params, "sign")
 	for k := range params {
-		key = append(key, k)
+		if reflect.TypeOf(params[k]).String()=="string" && params[k].(string)==""{
+
+		} else {
+			key = append(key, k)
+		}
+
 	}
 	sort.Strings(key)
 
@@ -239,4 +245,12 @@ func BuildForm(url string, bodyParams map[string]interface{}) string {
 			}
 		}
 	return "<form name=\"auto_submit_form\" method=\"post\" action=\""+url+"\">\n"+result+"<input type=\"submit\" value=\"立刻提交\" style=\"display:none\" >\n</form>\n<script>document.forms[0].submit();</script>"
+}
+
+func IsNil(i interface{}) bool {
+	vi := reflect.ValueOf(i)
+	if vi.Kind() == reflect.Ptr {
+		return vi.IsNil()
+	}
+	return false
 }

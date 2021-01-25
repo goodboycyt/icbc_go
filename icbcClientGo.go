@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/tidwall/gjson"
 	"net/url"
 	"strings"
@@ -137,13 +138,14 @@ func (icbc *IcbcClient) Execute(request *map[string]interface{}, msgId string, a
 	var jsonRes = gjson.GetMany(respStr, "response_biz_content","sign")
 	//var b error
 	b := error(nil)
-	if SIGN_TYPE_RSA == icbc.signType {
-		b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA1, jsonRes[1].String())
-	}else if SIGN_TYPE_RSA2 == icbc.signType {
-		b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA256, jsonRes[1].String())
-	}else{
-		b = errors.New("Only support RSA signature!in respose")
-	}
+	b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA1, jsonRes[1].String())
+	//if SIGN_TYPE_RSA == icbc.signType {
+	//	b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA1, jsonRes[1].String())
+	//}else if SIGN_TYPE_RSA2 == icbc.signType {
+	//	b =RsaVerifySign(jsonRes[0].String(),icbc.icbcPulicKey, crypto.SHA256, jsonRes[1].String())
+	//}else{
+	//	b = errors.New("Only support RSA signature!in respose")
+	//}
 	if (*request)["isNeedEncrypt"].(bool) == true {
 		if icbc.encryptType != "AES" {
 			return respStr,errors.New("only support aes;reponse")
@@ -166,5 +168,51 @@ func (icbc *IcbcClient) Execute(request *map[string]interface{}, msgId string, a
 
 	}
 	return respStr,b
+}
+
+/**
+异步通知签名验证
+ */
+
+func (icbc *IcbcClient) NotifyVerifySign(request  *url.Values, path string) error{
+	//params to return
+	params := map[string]interface{}{}
+	//biz to json string
+	//bf := bytes.NewBuffer([]byte{})
+	//jsonEncoder := json.NewEncoder(bf)
+	//jsonEncoder.SetEscapeHTML(false)
+	//eerr := jsonEncoder.Encode((*request)["biz_content"])
+	//if eerr!=nil {
+	//	return nil,eerr
+	//}
+
+	//bizContentStr := bf.String()
+	//bizContentStr := strings.Replace(bf.String(), "/", "\\/", -1)
+	//bizContentStr = strings.TrimRight(bizContentStr, "\n")
+	params["api"] = request.Get("api")
+	params["from"] = request.Get("from")
+	params["app_id"] = request.Get("app_id")
+	params["charset"] = request.Get("charset")
+	params["format"] = request.Get("format")
+	params["encrypt_type"] = request.Get("encrypt_type")
+	//fmt.Println(params["encrypt_type"])
+	params["timestamp"] = request.Get("timestamp")
+	params["biz_content"] = request.Get("biz_content")
+	params["sign_type"] = request.Get("sign_type")
+	//params["sign"] = request.Get("sign")
+	//prepare public params
+
+
+	//build sign string
+	var signStr string
+	BuildOrderedSignStr(path, params , &signStr)
+	fmt.Println(signStr)
+	//
+	//var signStrHad string
+	b :=RsaVerifySign(signStr,icbc.icbcPulicKey, crypto.SHA1, request.Get("sign"))
+	//sErr := Sign(signStr, params["sign_type"].(string), icbc.privateKey, params["charset"].(string) , &signStrHad)
+	return b
+
+
 }
 
