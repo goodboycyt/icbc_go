@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/tidwall/gjson"
 	"net/url"
 	"strings"
@@ -206,7 +205,7 @@ func (icbc *IcbcClient) NotifyVerifySign(request  *url.Values, path string) erro
 	//build sign string
 	var signStr string
 	BuildOrderedSignStr(path, params , &signStr)
-	fmt.Println(signStr)
+	//fmt.Println(signStr)
 	//
 	//var signStrHad string
 	b :=RsaVerifySign(signStr,icbc.icbcPulicKey, crypto.SHA1, request.Get("sign"))
